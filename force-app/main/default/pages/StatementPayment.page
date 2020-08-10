@@ -1,0 +1,53 @@
+<apex:page standardController="Statement__c" extensions="PaymentExtension" showHeader="false" sidebar="false">
+    <apex:form >
+        <apex:pageBlock title="Quick Payment">
+            <apex:pageBlockButtons location="Bottom" >
+                <apex:commandButton value="SavePayment" action="{!savePayment}" disabled="{!success}" /> 
+            </apex:pageBlockButtons>  
+             <apex:pagemessages />
+            <apex:pageBlockSection columns="1" >
+                <apex:selectList label="Payment Method" value="{!thisPayment.recordtypeid}" size="1" >
+                <apex:selectOptions value="{!paymentRecordTypes}"/>
+                <apex:actionSupport event="onchange" reRender="paymentMethodDetails"  />
+                </apex:selectList>
+                <apex:inputField value="{!thisPayment.Amount__c}"/>
+                <apex:inputField value="{!thisPayment.Billing_Name__c}"/>
+                <apex:inputField value="{!thisPayment.Billing_Street__c}"/>
+                <apex:inputField value="{!thisPayment.Billing_City__c}"/>
+                <apex:inputField value="{!thisPayment.Billing_State__c}"/>
+                <apex:inputField value="{!thisPayment.Billing_Postal_Code__c}"/>
+                
+            </apex:pageBlockSection>
+                        <!--section to contain check/card details-->
+            <!--the id will allow us to ajax rerender this section-->
+            <apex:outputpanel id="paymentMethodDetails">
+                <!--check fields-->
+                <apex:pageblocksection columns="1" rendered="{!thisPayment.recordtypeid != null && recordTypeMap[thisPayment.recordtypeid]=='Check'}">
+                    <apex:inputfield value="{!thisPayment.Check_Account_Number__c}"/>
+                    <apex:inputfield value="{!thisPayment.Check_Routing_Number__c}"/>
+                </apex:pageblocksection>
+                
+                <!--card fields-->
+                <apex:pageblocksection columns="1" rendered="{!thisPayment.recordtypeid != null && recordTypeMap[thisPayment.recordtypeid]=='Credit Card'}">
+                    <apex:inputfield value="{!thisPayment.Credit_Card_Number__c}"/>
+                    <!-- using pageblocksectionitem requires only 2 child-->
+                    <!-- elements of pageblocksectionitem. By nesting -->
+                    <!-- components in an outputpanel, we can get-->
+                    <!-- get around that restriction-->
+                    <apex:pageblocksectionitem >
+                        <apex:outputlabel value="Credit Card Expiration"/>
+                        <apex:outputpanel layout="none">
+                            <apex:inputfield value="{!thisPayment.Credit_Card_Expiration_month__c}"/>
+                            <apex:selectlist value="{!thisPayment.Expiration_Year__c}" size="1">
+                                <apex:selectoptions value="{!expirationYears}"/>
+                            </apex:selectlist>
+                        </apex:outputpanel>
+                    </apex:pageblocksectionitem>
+                    
+                    <!--inputsecret keeps the value masked during input-->
+                    <apex:inputsecret value="{!thisPayment.Credit_Card_Security_Card__c}"/>
+                </apex:pageblocksection>
+            </apex:outputpanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
